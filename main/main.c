@@ -9,6 +9,12 @@
 #include "gatt_svc.h"
 #include "heart_rate.h"
 #include "led.h"
+#include "glove_sensor.h"
+#include "soft_i2c_master.h"
+
+#define MPU6050_ADDR             0x68
+#define MPU6050_REG_PWR_MGMT_1   0x6B
+#define MPU6050_REG_ACCEL_XOUT_H 0x3B
 
 /* Library function declarations */
 void ble_store_config_init(void);
@@ -78,6 +84,48 @@ static void heart_rate_task(void *param) {
     vTaskDelete(NULL);
 }
 
+static void glove_sensor_task(void *param){
+    gpio_setup();
+
+    soft_i2c_master_config_t config = {
+        .scl_pin = 22,
+        .sda_pin = 21,
+        .freq = SOFT_I2C_100KHZ
+    };
+    soft_i2c_master_bus_t bus;
+    if (soft_i2c_master_new(&config, &bus) != ESP_OK) {
+        printf("Failed to init soft I2C bus\n");
+        vTaskDelete(NULL);
+        return;
+    }
+
+    uint8_t wake_cmd[2] = {MPU6050_REG_PWR_MGMT_1, 0};
+    if (soft_i2c_master_write(bus, MPU6050_ADDR, wake_cmd, 2) != ESP_OK) {
+        printf("Failed to wake MPU6050\n");
+        soft_i2c_master_del(bus);
+        vTaskDelete(NULL);
+        return;
+    }
+
+    int sensor_values[5];
+    int16_t accel[3], gyro[3];
+
+    while (1) {
+        read_glove_sensors(sensor_values);
+        mpu6050_read(bus, accel, gyro);
+
+        // TODO: Send sensor_values, accel, and gyro via Bluetooth
+        // For example, update a GATT characteristic:
+        // update_glove_characteristic(sensor_values, accel, gyro);
+
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+
+    soft_i2c_master_del(bus);
+    vTaskDelete(NULL);
+
+}
+
 void app_main(void) {
     /* Local variables */
     int rc;
@@ -129,5 +177,7 @@ void app_main(void) {
     /* Start NimBLE host task thread and return */
     xTaskCreate(nimble_host_task, "NimBLE Host", 4*1024, NULL, 5, NULL);
     xTaskCreate(heart_rate_task, "Heart Rate", 4*1024, NULL, 5, NULL);
+    xTaskCreate(glove_sensor_task, "Glove Sensor", 4*1024, NULL, 5, NULL);
+
     return;
 }
