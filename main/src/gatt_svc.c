@@ -29,7 +29,7 @@ static uint16_t heart_rate_chr_conn_handle = 0;
 static bool heart_rate_chr_conn_handle_inited = false;
 static bool heart_rate_ind_status = false;
 /* Glove sensor service */
-static uint8_t glove_sensor_chr_val[10] = {0}; // 5 sensors, 2 bytes each if using int16_t
+static uint8_t glove_sensor_chr_val[22] = {0}; // 5 sensors + 3 accel + 3 gyro
 static uint16_t glove_sensor_chr_val_handle;
 static const ble_uuid16_t glove_sensor_svc_uuid = BLE_UUID16_INIT(0x18F0);
 static const ble_uuid16_t glove_sensor_chr_uuid = BLE_UUID16_INIT(0x2A5F);
@@ -94,40 +94,29 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
 static int glove_sensor_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                                    struct ble_gatt_access_ctxt *ctxt, void *arg)
 {
-    /* Local variables */
-    int rc;
+       int rc;
 
-    /* Handle access events */
-    /* Note: Heart rate characteristic is read only */
     switch (ctxt->op)
     {
-
-    /* Read characteristic event */
     case BLE_GATT_ACCESS_OP_READ_CHR:
-        /* Verify connection handle */
         if (conn_handle != BLE_HS_CONN_HANDLE_NONE)
         {
-            ESP_LOGI(TAG, "characteristic read; conn_handle=%d attr_handle=%d",
+            ESP_LOGI(TAG, "glove sensor characteristic read; conn_handle=%d attr_handle=%d",
                      conn_handle, attr_handle);
         }
         else
         {
-            ESP_LOGI(TAG, "characteristic read by nimble stack; attr_handle=%d",
+            ESP_LOGI(TAG, "glove sensor characteristic read by nimble stack; attr_handle=%d",
                      attr_handle);
         }
 
-        /* Verify attribute handle */
-        if (attr_handle == heart_rate_chr_val_handle)
+        if (attr_handle == glove_sensor_chr_val_handle)
         {
-            /* Update access buffer value */
-            heart_rate_chr_val[1] = get_heart_rate();
-            rc = os_mbuf_append(ctxt->om, &heart_rate_chr_val,
-                                sizeof(heart_rate_chr_val));
+            rc = os_mbuf_append(ctxt->om, glove_sensor_chr_val, sizeof(glove_sensor_chr_val));
             return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
         }
         goto error;
 
-    /* Unknown event */
     default:
         goto error;
     }
@@ -264,8 +253,30 @@ void send_heart_rate_indication(void)
     }
 }
 
-void send_glove_sensor_indication(int *sensor_values)
+void send_glove_sensor_indication(int *sensor_values, int16_t *accel, int16_t *gyro)
 {
+    if (glove_sensor_ind_status && glove_sensor_chr_conn_handle_inited){
+        // Pack glove sensor values (5 x int16_t)
+        for (int i = 0; i < 5; ++i)
+        {
+            glove_sensor_chr_val[2 * i] = (sensor_values[i] >> 8) & 0xFF;
+            glove_sensor_chr_val[2 * i + 1] = sensor_values[i] & 0xFF;
+        }
+        // Pack accel values (3 x int16_t)
+        for (int i = 0; i < 3; ++i)
+        {
+            glove_sensor_chr_val[10 + 2 * i] = (accel[i] >> 8) & 0xFF;
+            glove_sensor_chr_val[10 + 2 * i + 1] = accel[i] & 0xFF;
+        }
+        // Pack gyro values (3 x int16_t)
+        for (int i = 0; i < 3; ++i)
+        {
+            glove_sensor_chr_val[16 + 2 * i] = (gyro[i] >> 8) & 0xFF;
+            glove_sensor_chr_val[16 + 2 * i + 1] = gyro[i] & 0xFF;
+        }
+        ble_gatts_indicate(glove_sensor_chr_conn_handle, glove_sensor_chr_val_handle);
+        ESP_LOGI(TAG, "glove sensor+mpu indication sent!");
+    }
 }
 
 /*
@@ -339,6 +350,12 @@ void gatt_svr_subscribe_cb(struct ble_gap_event *event)
         heart_rate_chr_conn_handle = event->subscribe.conn_handle;
         heart_rate_chr_conn_handle_inited = true;
         heart_rate_ind_status = event->subscribe.cur_indicate;
+    }
+    if (event->subscribe.attr_handle == glove_sensor_chr_val_handle)
+    {
+        glove_sensor_chr_conn_handle = event->subscribe.conn_handle;
+        glove_sensor_chr_conn_handle_inited = true;
+        glove_sensor_ind_status = event->subscribe.cur_indicate;
     }
 }
 

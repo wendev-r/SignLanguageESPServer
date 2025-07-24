@@ -16,6 +16,7 @@
 
 /* Public function declarations */
 void send_heart_rate_indication(void);
+void send_glove_sensor_indication(int *sensor_values, int16_t *accel, int16_t *gyro);
 void gatt_svr_register_cb(struct ble_gatt_register_ctxt *ctxt, void *arg);
 void gatt_svr_subscribe_cb(struct ble_gap_event *event);
 int gatt_svc_init(void);
