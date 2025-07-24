@@ -5099,6 +5099,71 @@
                 ],
                 "title": "Blink GPIO number",
                 "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "GPIO pin number to be used as GPIO_INPUT_IO_0.",
+                "id": "GPIO_INPUT_0",
+                "name": "GPIO_INPUT_0",
+                "range": [
+                    0,
+                    39
+                ],
+                "title": "GPIO input pin 0",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "GPIO pin number to be used as GPIO_INPUT_IO_1.",
+                "id": "GPIO_INPUT_1",
+                "name": "GPIO_INPUT_1",
+                "range": [
+                    0,
+                    39
+                ],
+                "title": "GPIO input pin 1",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "GPIO pin number to be used as GPIO_INPUT_IO_2.",
+                "id": "GPIO_INPUT_2",
+                "name": "GPIO_INPUT_2",
+                "range": [
+                    0,
+                    39
+                ],
+                "title": "GPIO input pin 2",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "GPIO pin number to be used as GPIO_INPUT_IO_3.",
+                "id": "GPIO_INPUT_3",
+                "name": "GPIO_INPUT_3",
+                "range": [
+                    0,
+                    39
+                ],
+                "title": "GPIO input pin 3",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "GPIO pin number to be used as GPIO_INPUT_IO_4.",
+                "id": "GPIO_INPUT_4",
+                "name": "GPIO_INPUT_4",
+                "range": [
+                    0,
+                    39
+                ],
+                "title": "GPIO input pin 4",
+                "type": "int"
             }
         ],
         "depends_on": null,

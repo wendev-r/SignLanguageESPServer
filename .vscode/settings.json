@@ -21,6 +21,7 @@
   "files.associations": {
     "nimble_port_freertos.h": "c",
     "util.h": "c",
-    "string.h": "c"
+    "string.h": "c",
+    "gpio.h": "c"
   }
 }

@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
-#include "soft_i2c_master.h"
+#include "driver/i2c.h"
 
 #define GPIO_INPUT_IO_0 12
 #define GPIO_INPUT_IO_1 14
@@ -22,6 +22,11 @@
 #define MPU6050_ADDR             0x68
 #define MPU6050_REG_PWR_MGMT_1   0x6B
 #define MPU6050_REG_ACCEL_XOUT_H 0x3B
+
+#define I2C_MASTER_NUM           I2C_NUM_0
+#define I2C_MASTER_SCL_IO        22
+#define I2C_MASTER_SDA_IO        21
+#define I2C_MASTER_FREQ_HZ       100000
 
 void gpio_setup() {
     gpio_config_t io_conf = {};
@@ -41,10 +46,12 @@ void read_glove_sensors(int *sensor_values) {
     sensor_values[4] = gpio_get_level(GPIO_INPUT_IO_4);
 }
 
-void mpu6050_read(soft_i2c_master_bus_t bus, int16_t *accel, int16_t *gyro) {
+void mpu6050_read(int i2c_port, int16_t *accel, int16_t *gyro) {
     uint8_t reg = MPU6050_REG_ACCEL_XOUT_H;
     uint8_t data[14];
-    if (soft_i2c_master_write_read(bus, MPU6050_ADDR, &reg, 1, data, 14) != ESP_OK) {
+    esp_err_t ret = i2c_master_write_read_device(
+        i2c_port, MPU6050_ADDR, &reg, 1, data, 14, pdMS_TO_TICKS(1000));
+    if (ret != ESP_OK) {
         printf("Failed to read MPU6050 data\n");
         return;
     }

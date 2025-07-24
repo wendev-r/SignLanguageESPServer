@@ -74,7 +74,7 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                                         {0}},
     },
     {.type = BLE_GATT_SVC_TYPE_PRIMARY,
-     .uuid = &auto_io_svc_uuid.u,
+     .uuid = &glove_sensor_svc_uuid.u,
      .characteristics =
          (struct ble_gatt_chr_def[]){
              {/* Glove sensor characteristic */
@@ -94,7 +94,7 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
 static int glove_sensor_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                                    struct ble_gatt_access_ctxt *ctxt, void *arg)
 {
-       int rc;
+    int rc;
 
     switch (ctxt->op)
     {
@@ -255,7 +255,8 @@ void send_heart_rate_indication(void)
 
 void send_glove_sensor_indication(int *sensor_values, int16_t *accel, int16_t *gyro)
 {
-    if (glove_sensor_ind_status && glove_sensor_chr_conn_handle_inited){
+    if (glove_sensor_ind_status && glove_sensor_chr_conn_handle_inited)
+    {
         // Pack glove sensor values (5 x int16_t)
         for (int i = 0; i < 5; ++i)
         {

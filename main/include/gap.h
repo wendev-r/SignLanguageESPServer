@@ -8,7 +8,7 @@
 
 /* Includes */
 /* NimBLE GAP APIs */
-#include "host/ble_gap.h"
+#include <host/ble_gap.h>
 #include "services/gap/ble_svc_gap.h"
 
 /* Defines */

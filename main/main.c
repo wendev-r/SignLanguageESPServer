@@ -10,7 +10,7 @@
 #include "heart_rate.h"
 #include "led.h"
 #include "glove_sensor.h"
-#include "soft_i2c_master.h"
+#include "driver/i2c.h"
 
 #define MPU6050_ADDR 0x68
 #define MPU6050_REG_PWR_MGMT_1 0x6B
@@ -94,23 +94,27 @@ static void glove_sensor_task(void *param)
 {
     gpio_setup();
 
-    soft_i2c_master_config_t config = {
-        .scl_pin = 22,
-        .sda_pin = 21,
-        .freq = SOFT_I2C_100KHZ};
-    soft_i2c_master_bus_t bus;
-    if (soft_i2c_master_new(&config, &bus) != ESP_OK)
-    {
-        printf("Failed to init soft I2C bus\n");
-        vTaskDelete(NULL);
-        return;
-    }
+    // I2C master initialization
+    i2c_config_t conf = {
+        .mode = I2C_MODE_MASTER,
+        .sda_io_num = 21,
+        .scl_io_num = 22,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .master.clk_speed = 100000,
+        .clk_flags = 0,
+    };
+    i2c_param_config(I2C_NUM_0, &conf);
+    i2c_driver_install(I2C_NUM_0, conf.mode, 0, 0, 0);
 
+    // Wake up MPU6050
     uint8_t wake_cmd[2] = {MPU6050_REG_PWR_MGMT_1, 0};
-    if (soft_i2c_master_write(bus, MPU6050_ADDR, wake_cmd, 2) != ESP_OK)
+    esp_err_t ret = i2c_master_write_to_device(
+        I2C_NUM_0, MPU6050_ADDR, wake_cmd, 2, pdMS_TO_TICKS(1000));
+    if (ret != ESP_OK)
     {
         printf("Failed to wake MPU6050\n");
-        soft_i2c_master_del(bus);
+        i2c_driver_delete(I2C_NUM_0);
         vTaskDelete(NULL);
         return;
     }
@@ -121,14 +125,14 @@ static void glove_sensor_task(void *param)
     while (1)
     {
         read_glove_sensors(sensor_values);
-        mpu6050_read(bus, accel, gyro);
+        mpu6050_read(I2C_NUM_0, accel, gyro);
 
         send_glove_sensor_indication(sensor_values, accel, gyro);
 
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 
-    soft_i2c_master_del(bus);
+    i2c_driver_delete(I2C_NUM_0);
     vTaskDelete(NULL);
 }
 

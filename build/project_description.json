@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "SignLanguageESPServer",
-    "project_version":    "1",
+    "project_version":    "d13048f-dirty",
     "project_path":       "C:/Users/rouse/Documents/SignLanguageESPServer",
     "idf_path":           "C:/Users/rouse/esp/v5.4.2/esp-idf",
     "build_dir":          "C:/Users/rouse/Documents/SignLanguageESPServer/build",
@@ -1210,7 +1210,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [ "espressif__led_strip" ],
             "file": "C:/Users/rouse/Documents/SignLanguageESPServer/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Users/rouse/Documents/SignLanguageESPServer/main/main.c", "C:/Users/rouse/Documents/SignLanguageESPServer/main/src/gap.c", "C:/Users/rouse/Documents/SignLanguageESPServer/main/src/gatt_svc.c", "C:/Users/rouse/Documents/SignLanguageESPServer/main/src/heart_rate_mock.c", "C:/Users/rouse/Documents/SignLanguageESPServer/main/src/led.c" ],
+            "sources": [ "C:/Users/rouse/Documents/SignLanguageESPServer/main/main.c", "C:/Users/rouse/Documents/SignLanguageESPServer/main/src/gap.c", "C:/Users/rouse/Documents/SignLanguageESPServer/main/src/gatt_svc.c", "C:/Users/rouse/Documents/SignLanguageESPServer/main/src/glove_sensor.c", "C:/Users/rouse/Documents/SignLanguageESPServer/main/src/heart_rate_mock.c", "C:/Users/rouse/Documents/SignLanguageESPServer/main/src/led.c" ],
             "include_dirs": [ "./include" ]
         },
         "mbedtls": {

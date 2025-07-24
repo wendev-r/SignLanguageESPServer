@@ -353,13 +353,13 @@ PYTHON_DEPS_CHECKED:UNINITIALIZED=1
 SDKCONFIG:UNINITIALIZED=c:\Users\rouse\Documents\SignLanguageESPServer\sdkconfig
 
 //Value Computed by CMake
-TESTGATT_BINARY_DIR:STATIC=C:/Users/rouse/Documents/SignLanguageESPServer/build
+SignLanguageESPServer_BINARY_DIR:STATIC=C:/Users/rouse/Documents/SignLanguageESPServer/build
 
 //Value Computed by CMake
-TESTGATT_IS_TOP_LEVEL:STATIC=ON
+SignLanguageESPServer_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
-TESTGATT_SOURCE_DIR:STATIC=C:/Users/rouse/Documents/SignLanguageESPServer
+SignLanguageESPServer_SOURCE_DIR:STATIC=C:/Users/rouse/Documents/SignLanguageESPServer
 
 //Allow unsafe builds. These builds ARE NOT SECURE.
 UNSAFE_BUILD:BOOL=OFF
